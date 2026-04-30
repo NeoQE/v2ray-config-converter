@@ -1,0 +1,2739 @@
+html
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V2Ray Server Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Vazirmatn:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b0f;
+    --surface: #0d1117;
+    --surface2: #161b22;
+    --border: #1e2836;
+    --accent: #00d4aa;
+    --accent2: #0aff9d;
+    --accent-dim: rgba(0, 212, 170, 0.12);
+    --accent-glow: 0 0 20px rgba(0, 212, 170, 0.3);
+    --red: #ff4757;
+    --red-dim: rgba(255, 71, 87, 0.12);
+    --yellow: #f2cc60;
+    --blue: #79c0ff;
+    --purple: #d2a8ff;
+    --orange: #ffa657;
+    --text: #c9d1d9;
+    --text-dim: #58677a;
+    --text-bright: #e6edf3;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Vazirmatn', sans-serif;
+    --radius: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(0,212,170,0.07) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .logo-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 50px);
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  h1 span { color: var(--accent); text-shadow: var(--accent-glow); }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14.5px;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* ── Section tabs ── */
+  .section-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    animation: fadeDown 0.8s ease both;
+    animation-delay: 0.1s;
+  }
+
+  .tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 20px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active {
+    background: var(--accent-dim);
+    border-color: rgba(0,212,170,0.35);
+    color: var(--accent);
+  }
+
+  .tab-btn:hover:not(.active) {
+    border-color: rgba(0,212,170,0.2);
+    color: var(--text);
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+    animation: fadeUp 0.7s ease both;
+    animation-delay: 0.15s;
+    display: none;
+  }
+  .card.active { display: block; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .traffic-lights { display: flex; gap: 6px; }
+  .traffic-lights span { width: 12px; height: 12px; border-radius: 50%; }
+  .tl-red { background: #ff5f56; }
+  .tl-yellow { background: #febc2e; }
+  .tl-green { background: #28c840; }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    flex: 1;
+    text-align: center;
+  }
+
+  /* ── ONE-TIME SETUP BANNER ── */
+  .onetime-banner {
+    margin: 18px 22px 0;
+    border: 1px solid rgba(242,204,96,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(242,204,96,0.03);
+  }
+
+  .onetime-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(242,204,96,0.07);
+    border-bottom: 1px solid rgba(242,204,96,0.15);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .onetime-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(242,204,96,0.12);
+    border: 1px solid rgba(242,204,96,0.3);
+    border-radius: 6px;
+    padding: 2px 9px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--yellow);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .onetime-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--yellow);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--yellow);
+  }
+
+  .onetime-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #d4b96a;
+    flex: 1;
+  }
+
+  .onetime-toggle {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+  }
+
+  .onetime-toggle.open { transform: rotate(180deg); }
+
+  .onetime-body {
+    padding: 12px 14px 14px;
+    display: none;
+  }
+  .onetime-body.open { display: block; }
+
+  .onetime-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  .onetime-desc strong { color: var(--yellow); }
+
+  .onetime-cmd {
+    background: var(--bg);
+    border: 1px solid rgba(242,204,96,0.15);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: #c8b97a;
+    direction: ltr;
+    white-space: pre;
+    overflow: auto;
+    max-height: 180px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .onetime-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .onetime-note {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+
+  /* ── Input area ── */
+  .input-section { padding: 22px 22px 6px; }
+
+  .input-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  .tag {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  .tag-orange {
+    background: rgba(255,166,87,0.12);
+    color: var(--orange);
+  }
+
+  .tag-purple {
+    background: rgba(210,168,255,0.12);
+    color: var(--purple);
+  }
+
+  .tag-yellow {
+    background: rgba(242,204,96,0.12);
+    color: var(--yellow);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 180px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    padding: 14px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    direction: ltr;
+    tab-size: 2;
+  }
+
+  textarea::placeholder { color: var(--text-dim); opacity: 0.5; }
+
+  textarea:focus {
+    border-color: rgba(0,212,170,0.4);
+    box-shadow: 0 0 0 3px rgba(0,212,170,0.06);
+  }
+
+  /* ── Hint ── */
+  .hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 12px 0 0;
+    padding: 12px 14px;
+    background: rgba(255,184,0,0.04);
+    border: 1px solid rgba(255,184,0,0.14);
+    border-radius: 8px;
+    font-size: 12px;
+    color: #a8956a;
+    line-height: 1.6;
+  }
+
+  .hint code {
+    font-family: var(--mono);
+    background: rgba(255,184,0,0.1);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+
+  /* Install type selector */
+  .install-type-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--sans);
+  }
+
+  .type-chip.selected {
+    border-color: rgba(0,212,170,0.4);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .type-chip:hover:not(.selected) {
+    border-color: rgba(0,212,170,0.2);
+    color: var(--text);
+  }
+
+  /* ── Actions ── */
+  .actions {
+    padding: 16px 22px 22px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border: none;
+    border-radius: 9px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(0,212,170,0.22);
+  }
+  .btn-primary:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(0,212,170,0.38);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-orange {
+    background: var(--orange);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(255,166,87,0.22);
+  }
+  .btn-orange:hover {
+    background: #ffb86c;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(255,166,87,0.38);
+  }
+
+  .btn-yellow {
+    background: var(--yellow);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(242,204,96,0.22);
+  }
+  .btn-yellow:hover {
+    background: #f5d96e;
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover {
+    color: var(--text);
+    border-color: rgba(0,212,170,0.3);
+  }
+
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+
+  /* ── Error ── */
+  .error-box {
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 22px 16px;
+    padding: 12px 14px;
+    background: var(--red-dim);
+    border: 1px solid rgba(255,71,87,0.25);
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--red);
+    animation: shake 0.3s ease;
+    line-height: 1.5;
+    direction: rtl;
+  }
+  .error-box.visible { display: flex; }
+
+  /* ── Divider ── */
+  .divider {
+    margin: 0 22px;
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Info bar ── */
+  .info-bar {
+    display: none;
+    gap: 0;
+    flex-direction: column;
+    margin: 0 22px 16px;
+    background: var(--bg);
+    border: 1px solid rgba(0,212,170,0.18);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 11.5px;
+  }
+  .info-bar.visible { display: flex; }
+
+  .info-bar-title {
+    background: rgba(0,212,170,0.07);
+    border-bottom: 1px solid rgba(0,212,170,0.12);
+    padding: 8px 14px;
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .info-rows { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+
+  .info-row {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+
+  .info-key {
+    color: var(--blue);
+    min-width: 110px;
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+
+  .info-val {
+    color: #a5d6ff;
+    word-break: break-all;
+  }
+
+  .info-val.highlight {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  /* ── Output section ── */
+  .output-section { padding: 22px; display: none; animation: fadeUp 0.4s ease; }
+  .output-section.visible { display: block; }
+
+  .output-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .output-label-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  .output-label-left .tag {
+    background: rgba(10,255,157,0.1);
+    color: var(--accent2);
+    letter-spacing: 1px;
+  }
+
+  .output-label-left .tag-orange {
+    background: rgba(255,166,87,0.12);
+    color: var(--orange);
+    letter-spacing: 1px;
+  }
+
+  .output-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 6px;
+    padding: 5px 11px;
+    font-size: 11.5px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn.copied { border-color: var(--accent2); color: var(--accent2); background: rgba(10,255,157,0.05); }
+
+  .output-box {
+    background: var(--bg);
+    border: 1px solid rgba(0,212,170,0.18);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: #8fbfbd;
+    direction: ltr;
+    overflow: auto;
+    white-space: pre;
+    max-height: 440px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    box-shadow: inset 0 0 40px rgba(0,212,170,0.015);
+  }
+
+  .output-box-install {
+    border-color: rgba(255,166,87,0.2);
+    box-shadow: inset 0 0 40px rgba(255,166,87,0.01);
+  }
+
+  .output-box::-webkit-scrollbar { width: 4px; height: 4px; }
+  .output-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* JSON syntax */
+  .json-key { color: #79c0ff; }
+  .json-string { color: #a5d6ff; }
+  .json-number { color: #f2cc60; }
+  .json-bool { color: #ff9580; }
+  .json-null { color: #ff9580; }
+
+  /* bash syntax */
+  .bash-cmd { color: #f2cc60; font-weight: 600; }
+  .bash-flag { color: var(--orange); }
+  .bash-str { color: #a5d6ff; }
+  .bash-comment { color: var(--text-dim); font-style: italic; }
+  .heredoc-cmd { color: #f2cc60; font-weight: 600; }
+  .heredoc-eof { color: #ff9580; font-weight: 700; letter-spacing: 1px; }
+
+  .download-row {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    padding: 12px 22px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    font-size: 11.5px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .stat { display: flex; align-items: center; gap: 6px; }
+
+  .stat-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    flex-shrink: 0;
+  }
+  .stat-dot.inactive { background: var(--text-dim); box-shadow: none; }
+  .stat-dot.orange { background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+  .stat-dot.yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+
+  /* ── Install type badge ── */
+  .install-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .install-badge.github {
+    background: rgba(210,168,255,0.1);
+    color: var(--purple);
+    border: 1px solid rgba(210,168,255,0.2);
+  }
+
+  .install-badge.apt {
+    background: rgba(255,166,87,0.1);
+    color: var(--orange);
+    border: 1px solid rgba(255,166,87,0.2);
+  }
+
+  .install-badge.pip {
+    background: rgba(121,192,255,0.1);
+    color: var(--blue);
+    border: 1px solid rgba(121,192,255,0.2);
+  }
+
+  .install-badge.curl {
+    background: rgba(0,212,170,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,170,0.2);
+  }
+
+  /* ── Quick Commands Card ── */
+  .quick-card {
+    margin-top: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    animation: fadeUp 0.85s ease both;
+    animation-delay: 0.2s;
+    position: relative;
+  }
+
+  .quick-header {
+    padding: 16px 20px 12px;
+    background: linear-gradient(135deg, rgba(0,212,170,0.06) 0%, rgba(121,192,255,0.04) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .quick-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 3px;
+  }
+
+  .quick-subtitle {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .quick-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 10px 12px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .quick-tabs::-webkit-scrollbar { display: none; }
+
+  .qtab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 13px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.18s;
+    white-space: nowrap;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .qtab:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+
+  .qtab.active {
+    color: var(--text-bright);
+    border-bottom-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .qdot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .qdot-green { background: #28c840; box-shadow: 0 0 5px rgba(40,200,64,0.5); }
+  .qdot-red { background: #ff5f56; box-shadow: 0 0 5px rgba(255,95,86,0.5); }
+  .qdot-blue { background: #79c0ff; box-shadow: 0 0 5px rgba(121,192,255,0.5); }
+  .qdot-yellow { background: var(--yellow); box-shadow: 0 0 5px rgba(242,204,96,0.5); }
+
+  .quick-pane {
+    display: none;
+    padding: 14px 18px 16px;
+    position: relative;
+    animation: fadeIn 0.25s ease;
+  }
+  .quick-pane.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .quick-desc {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    line-height: 1.65;
+  }
+
+  .quick-cmd {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.65;
+    color: #8fbfbd;
+    direction: ltr;
+    white-space: pre;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    margin-bottom: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .quick-cmd::-webkit-scrollbar { width: 4px; height: 4px; }
+  .quick-cmd::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .quick-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    border-radius: 7px;
+    font-family: var(--sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .quick-copy-btn:hover {
+    border-color: rgba(0,212,170,0.4);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .quick-copied-toast {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(10,255,157,0.12);
+    border: 1px solid rgba(10,255,157,0.4);
+    color: var(--accent2);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .quick-copied-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── VPN Management Section ── */
+  .vpn-mgmt-section {
+    margin-top: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    animation: fadeUp 0.7s ease both;
+    animation-delay: 0.2s;
+  }
+
+  .vpn-mgmt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 22px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .vpn-mgmt-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .vpn-mgmt-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,212,170,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .vpn-mgmt-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  .vpn-mgmt-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+
+  .vpn-mgmt-toggle {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: transform 0.25s;
+  }
+  .vpn-mgmt-toggle.open { transform: rotate(180deg); }
+
+  .vpn-mgmt-body {
+    display: none;
+    padding: 16px 22px 22px;
+  }
+  .vpn-mgmt-body.open { display: block; }
+
+  .vpn-action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+  }
+
+  .vpn-action-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    transition: all 0.2s;
+  }
+
+  .vpn-action-card:hover {
+    border-color: rgba(0,212,170,0.25);
+  }
+
+  .vpn-action-card.start { border-color: rgba(10,255,157,0.2); }
+  .vpn-action-card.stop  { border-color: rgba(255,71,87,0.18); }
+  .vpn-action-card.test  { border-color: rgba(121,192,255,0.2); }
+  .vpn-action-card.swap  { border-color: rgba(210,168,255,0.2); }
+
+  .vpn-action-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .vpn-action-emoji {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .vpn-action-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  .vpn-action-card.start .vpn-action-title { color: var(--accent2); }
+  .vpn-action-card.stop  .vpn-action-title { color: var(--red); }
+  .vpn-action-card.test  .vpn-action-title { color: var(--blue); }
+  .vpn-action-card.swap  .vpn-action-title { color: var(--purple); }
+
+  .vpn-action-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+
+  .vpn-action-cmd {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 6px;
+    padding: 9px 11px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: #8fbfbd;
+    direction: ltr;
+    white-space: pre;
+    overflow: auto;
+    line-height: 1.55;
+    max-height: 110px;
+    margin-bottom: 9px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .vpn-action-cmd::-webkit-scrollbar { height: 3px; width: 3px; }
+  .vpn-action-cmd::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .vpn-copy-btn {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .vpn-copy-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .vpn-copy-btn.copied {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(10,255,157,0.05);
+  }
+
+  /* ── Sponsor ── */
+  .sponsor-section {
+    margin-top: 32px;
+    padding: 24px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    animation: fadeUp 0.9s ease both;
+    animation-delay: 0.25s;
+    text-align: center;
+  }
+
+  .sponsor-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .sponsor-label::before, .sponsor-label::after {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .sponsor-creator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .creator-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    border: 2px solid rgba(0,212,170,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .creator-info { text-align: right; }
+
+  .creator-name {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+
+  .creator-role {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .sponsor-btns {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .sponsor-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 22px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    font-family: var(--sans);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.22s;
+    border: none;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+
+  .sponsor-btn-yt { background: #ff0000; color: #fff; box-shadow: 0 4px 18px rgba(255,0,0,0.28); }
+  .sponsor-btn-yt:hover { background: #e60000; transform: translateY(-2px); }
+
+  .sponsor-btn-tg { background: #229ED9; color: #fff; box-shadow: 0 4px 18px rgba(34,158,217,0.28); }
+  .sponsor-btn-tg:hover { background: #1a8ac4; transform: translateY(-2px); }
+
+  .sponsor-btn-gh {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .sponsor-btn-gh:hover { background: var(--border); color: var(--text-bright); transform: translateY(-2px); }
+
+  /* ── Animations ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; }
+    50%      { opacity:0.3; }
+  }
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    25%     { transform:translateX(-5px); }
+    75%     { transform:translateX(5px); }
+  }
+
+  textarea::-webkit-scrollbar { width: 4px; }
+  textarea::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .onetime-cmd::-webkit-scrollbar { width: 4px; height: 4px; }
+  .onetime-cmd::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  @media (max-width:600px) {
+    .container { padding: 20px 12px 60px; }
+    h1 { font-size: 26px; }
+    .info-key { min-width: 80px; }
+    .output-actions { gap: 5px; }
+    .sponsor-btns { flex-direction: column; align-items: center; }
+    .section-tabs { gap: 6px; }
+    .tab-btn { padding: 7px 13px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="header">
+    <div class="logo-badge">V2Ray Server Tools</div>
+    <h1>ابزار <span>سرور</span></h1>
+    <p class="subtitle">کانفیگ بده → دستور کامل نصب بگیر &nbsp;|&nbsp; لینک یا پکیج بده → دستور نصب صحیح بگیر</p>
+  </header>
+
+  <!-- Tab selector -->
+  <div class="section-tabs">
+    <button class="tab-btn active" onclick="switchTab('config')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      تبدیل کانفیگ V2Ray
+    </button>
+    <button class="tab-btn" onclick="switchTab('install')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      دستور نصب پکیج / GitHub
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════
+       CARD 1: Config Converter
+  ══════════════════════════════════ -->
+  <div class="card active" id="cardConfig">
+    <div class="card-header">
+      <div class="traffic-lights">
+        <span class="tl-red"></span>
+        <span class="tl-yellow"></span>
+        <span class="tl-green"></span>
+      </div>
+      <span class="card-title">v2ray-full-install-generator</span>
+    </div>
+
+    <div class="input-section">
+      <div class="input-label">
+        <span>📋</span>
+        <span>کانفیگ V2Ray را اینجا Paste کنید</span>
+        <span class="tag">INPUT</span>
+      </div>
+      <textarea
+        id="inputArea"
+        placeholder="vless://de9bc3a7-a64e-4aeb-9cd1-6458528fe4c0@185.143.233.235:8880?encryption=none&security=none&type=ws&host=node2.classless.ir&path=%2Fwp-content%2Fdb.php#ARCDN2
+
+──────────────────────────
+یا JSON خالص:
+{
+  &quot;outbounds&quot;: [{ &quot;protocol&quot;: &quot;vless&quot;, ... }]
+}
+──────────────────────────
+یا دستور bash کامل (cat << EOF ... EOF)"
+        spellcheck="false"
+        autocomplete="off"
+      ></textarea>
+      <div class="hint">
+        <span style="font-size:14px;flex-shrink:0;margin-top:1px">💡</span>
+        <span>
+          هر فرمتی قبول می‌شود:
+          لینک‌های <code>vless://</code> / <code>vmess://</code> / <code>trojan://</code> / <code>ss://</code>،
+          JSON خالص،
+          یا دستور bash کامل —
+          خروجی یک دستور یکجا کامل است که DNS، mirror، v2ray، proxychains را نصب و تنظیم می‌کند.
+        </span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="convertConfig()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        بساز دستور کامل
+      </button>
+      <button class="btn btn-ghost" onclick="pasteConfig()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Paste
+      </button>
+      <button class="btn btn-ghost" onclick="clearConfig()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        پاک کردن
+      </button>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box" id="configError">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="configErrorMsg"></span>
+    </div>
+
+    <!-- Info bar -->
+    <div class="info-bar" id="configInfoBar">
+      <div class="info-bar-title">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        اطلاعات کانفیگ
+      </div>
+      <div class="info-rows" id="configInfoRows"></div>
+    </div>
+
+    <hr class="divider" id="configDivider" style="display:none">
+
+    <!-- Output -->
+    <div class="output-section" id="configOutput">
+      <div class="output-label">
+        <div class="output-label-left">
+          <span>🚀</span>
+          <span>دستور کامل نصب + کانفیگ</span>
+          <span class="tag">BASH · ONE-LINER</span>
+        </div>
+        <div class="output-actions">
+          <button class="icon-btn" id="copyFullBtn" onclick="copyFull()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            کپی دستور کامل
+          </button>
+          <button class="icon-btn" id="copyJsonOnly" onclick="copyJsonOnly()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            فقط JSON
+          </button>
+        </div>
+      </div>
+      <div class="output-box" id="configOutputBox"></div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar" id="configStats">
+      <div class="stat">
+        <div class="stat-dot inactive" id="configDot"></div>
+        <span id="configStatusText">منتظر ورودی</span>
+      </div>
+      <div class="stat" id="configProtoWrap" style="display:none">
+        <div class="stat-dot"></div>
+        <span id="configProtoText"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       CARD 2: Install Helper
+  ══════════════════════════════════ -->
+  <div class="card" id="cardInstall">
+    <div class="card-header">
+      <div class="traffic-lights">
+        <span class="tl-red"></span>
+        <span class="tl-yellow"></span>
+        <span class="tl-green"></span>
+      </div>
+      <span class="card-title">install-command-generator</span>
+    </div>
+
+    <!-- ══ ONE-TIME SETUP BANNER ══ -->
+    <div class="onetime-banner">
+      <div class="onetime-header" onclick="toggleOneTime()">
+        <div class="onetime-badge">فقط یک بار</div>
+        <div class="onetime-title">⚙️ نصب ابزار مستر <code style="font-family:var(--mono);background:rgba(242,204,96,0.15);padding:1px 7px;border-radius:4px;font-size:12px">vpn-run</code> — هر دستور با این پیشوند، خودکار از VPN رد می‌شود</div>
+        <div class="onetime-toggle" id="onetimeToggle">▼</div>
+      </div>
+      <div class="onetime-body" id="onetimeBody">
+        <div class="onetime-desc">
+          فقط <strong>یک بار</strong> روی هر سرور جدید این دستور را بزنید. بعد از آن:
+          <br><br>
+          ◉ هر دستوری بنویسی، فقط <code style="font-family:var(--mono);color:var(--yellow)">vpn-run</code> اولش بذار → خودکار از VPN رد می‌شود
+          <br>
+          ◉ <code style="font-family:var(--mono);color:var(--yellow)">vpn-run apt install nginx</code>
+          <br>
+          ◉ <code style="font-family:var(--mono);color:var(--yellow)">vpn-run bash &lt;(curl -sL URL)</code>
+          <br>
+          ◉ <code style="font-family:var(--mono);color:var(--yellow)">vpn-run docker pull image:tag</code>
+          <br>
+          ◉ <code style="font-family:var(--mono);color:var(--yellow)">vpn-run sudo bash -c "$(curl -sL URL)" @ install</code>
+          <br><br>
+          داخل <code style="font-family:var(--mono);color:var(--yellow)">vpn-run</code> همه چیز اتوماتیک از VPN استفاده می‌کند: apt، curl، wget، docker، حتی اسکریپت‌های nested.
+          <br><br>
+          <strong>⚠ شرط:</strong> v2ray باید روشن باشد (پورت 1080).
+        </div>
+        <div class="onetime-cmd" id="onetimeCmd">apt install -y privoxy && echo "forward-socks5 / 127.0.0.1:1080 ." >> /etc/privoxy/config && systemctl restart privoxy && mkdir -p /etc/apt/keyrings && curl --socks5-hostname 127.0.0.1:1080 -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc 2>/dev/null && chmod a+r /etc/apt/keyrings/docker.asc && tee /etc/apt/apt.conf.d/99vpn-proxy > /dev/null << 'EOF'
+Acquire::http::Proxy::download.docker.com "http://127.0.0.1:8118";
+Acquire::https::Proxy::download.docker.com "http://127.0.0.1:8118";
+Acquire::http::Proxy::deb.nodesource.com "http://127.0.0.1:8118";
+Acquire::https::Proxy::deb.nodesource.com "http://127.0.0.1:8118";
+Acquire::http::Proxy::packages.cloud.google.com "http://127.0.0.1:8118";
+Acquire::https::Proxy::packages.cloud.google.com "http://127.0.0.1:8118";
+Acquire::http::Proxy::dl.cloudsmith.io "http://127.0.0.1:8118";
+Acquire::https::Proxy::dl.cloudsmith.io "http://127.0.0.1:8118";
+Acquire::http::Proxy::pkg.cloudflareclient.com "http://127.0.0.1:8118";
+Acquire::https::Proxy::pkg.cloudflareclient.com "http://127.0.0.1:8118";
+Acquire::http::Proxy::ppa.launchpadcontent.net "http://127.0.0.1:8118";
+Acquire::https::Proxy::ppa.launchpadcontent.net "http://127.0.0.1:8118";
+EOF
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list && apt update && NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin && mkdir -p /etc/systemd/system/docker.service.d && printf '[Service]\nEnvironment="HTTPS_PROXY=http://127.0.0.1:8118"\nEnvironment="HTTP_PROXY=http://127.0.0.1:8118"\nEnvironment="NO_PROXY=localhost,127.0.0.1,::1"\n' > /etc/systemd/system/docker.service.d/proxy.conf && systemctl daemon-reload && systemctl restart docker && cat > /usr/local/bin/vpn-run << 'VPNRUN_EOF'
+#!/bin/bash
+# vpn-run: هر دستوری بدهی، خودکار از VPN عبور می‌کند
+# ساخت: pouryaQE — همه ابزارهای nested (curl, wget, apt, docker) اتوماتیک proxy می‌شوند
+
+set -e
+PROXY_HTTP="http://127.0.0.1:8118"
+PROXY_SOCKS="socks5://127.0.0.1:1080"
+PROXY_SOCKS_H="socks5h://127.0.0.1:1080"
+
+# 1) متغیرهای محیطی برای همه برنامه‌ها (curl/wget/git/python/...)
+export http_proxy="$PROXY_HTTP"
+export https_proxy="$PROXY_HTTP"
+export HTTP_PROXY="$PROXY_HTTP"
+export HTTPS_PROXY="$PROXY_HTTP"
+export ALL_PROXY="$PROXY_SOCKS_H"
+export all_proxy="$PROXY_SOCKS_H"
+export NO_PROXY="localhost,127.0.0.1,::1,*.iranserver.com,mirror.iranserver.com"
+export no_proxy="$NO_PROXY"
+
+# 2) ساخت curl/wget wrapper موقت در bin مخصوص (top of PATH)
+WRAP_BIN="/tmp/vpnrun-bin"
+mkdir -p "$WRAP_BIN"
+
+cat > "$WRAP_BIN/curl" << 'EOF2'
+#!/bin/bash
+# auto-retry on connection drops, auto-resume on partial downloads
+exec /usr/bin/curl --socks5-hostname 127.0.0.1:1080 --connect-timeout 30 --retry 5 --retry-delay 3 --retry-connrefused -C - "$@"
+EOF2
+chmod +x "$WRAP_BIN/curl"
+
+cat > "$WRAP_BIN/wget" << 'EOF2'
+#!/bin/bash
+WGET_BIN="/usr/bin/wget"
+[ -x /usr/bin/wget.real ] && WGET_BIN="/usr/bin/wget.real"
+exec "$WGET_BIN" -e use_proxy=yes -e https_proxy=http://127.0.0.1:8118 -e http_proxy=http://127.0.0.1:8118 "$@"
+EOF2
+chmod +x "$WRAP_BIN/wget"
+
+export PATH="$WRAP_BIN:$PATH"
+export NEEDRESTART_MODE=a
+export DEBIAN_FRONTEND=noninteractive
+
+# 3) چک privoxy
+if ! systemctl is-active --quiet privoxy 2>/dev/null; then
+  echo "⚠ privoxy فعال نیست — تلاش برای راه‌اندازی..."
+  systemctl start privoxy 2>/dev/null || true
+fi
+
+# 4) چک v2ray
+if ! ss -tln 2>/dev/null | grep -q ':1080 '; then
+  echo "✗ خطا: v2ray روی پورت 1080 در حال اجرا نیست!"
+  echo "  systemctl status v2ray  →  systemctl start v2ray"
+  exit 1
+fi
+
+# 5) اجرای دستور کاربر
+if [ $# -eq 0 ]; then
+  echo "vpn-run: استفاده: vpn-run <command> [args...]"
+  echo ""
+  echo "مثال‌ها:"
+  echo "  vpn-run apt install -y nginx"
+  echo "  vpn-run bash <(curl -sL https://...)"
+  echo "  vpn-run docker pull alpine"
+  echo "  vpn-run pip3 install requests"
+  exit 1
+fi
+
+echo "🌐 vpn-run: اجرا با VPN | $@"
+exec "$@"
+VPNRUN_EOF
+chmod +x /usr/local/bin/vpn-run && hash -r && echo "" && echo "✅ vpn-run نصب شد — استفاده: vpn-run <هر دستوری>" && echo "✅ Docker با proxy نصب شد و آماده pull کردن image است" && echo "" && echo "نمونه:  vpn-run apt install -y nginx" && echo "نمونه:  vpn-run bash <(curl -sL https://github.com/...)"</div>
+        <div class="onetime-actions">
+          <button class="btn btn-yellow" style="padding:8px 18px;font-size:13px" onclick="copyOneTime()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            کپی دستور نصب vpn-run
+          </button>
+          <span class="onetime-note" id="onetimeCopied" style="display:none;color:var(--yellow)">✓ کپی شد</span>
+          <span class="onetime-note">privoxy + Docker + vpn-run wrapper</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="install-type-row">
+        <button class="type-chip selected" id="chip-auto" onclick="selectType('auto')">🤖 خودکار</button>
+        <button class="type-chip" id="chip-github" onclick="selectType('github')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.7 18 5 18 5c.7 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+          لینک GitHub
+        </button>
+        <button class="type-chip" id="chip-apt" onclick="selectType('apt')">📦 پکیج apt</button>
+        <button class="type-chip" id="chip-pip" onclick="selectType('pip')">🐍 پکیج pip</button>
+        <button class="type-chip" id="chip-url" onclick="selectType('url')">🔗 لینک دانلود</button>
+      </div>
+
+      <div class="input-label">
+        <span>⌨️</span>
+        <span id="installInputLabel">بنویسید چه می‌خواهید نصب کنید</span>
+        <span class="tag tag-orange">INPUT</span>
+      </div>
+      <textarea
+        id="installInput"
+        style="min-height:120px"
+        placeholder="مثال‌ها:
+https://github.com/mhsanaei/3x-ui/master/install.sh
+https://github.com/Gozargah/Marzban-scripts/raw/master/marzban.sh
+https://raw.githubusercontent.com/alireza0/x-ui/master/install.sh
+nginx
+python3-pip
+https://example.com/file.tar.gz"
+        spellcheck="false"
+        autocomplete="off"
+        oninput="autoDetectType()"
+      ></textarea>
+
+      <div class="hint" id="installHint">
+        <span style="font-size:14px;flex-shrink:0;margin-top:1px">💡</span>
+        <span id="installHintText">
+          لینک GitHub، اسم پکیج apt، یا لینک دانلود وارد کنید.
+          نوع به صورت خودکار شناسایی می‌شود.
+          دستور از طریق VPN (SOCKS5 127.0.0.1:1080) کار می‌کند.
+        </span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-orange" onclick="generateInstall()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        بساز دستور نصب
+      </button>
+      <button class="btn btn-ghost" onclick="pasteInstall()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Paste
+      </button>
+      <button class="btn btn-ghost" onclick="clearInstall()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        پاک کردن
+      </button>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box" id="installError">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="installErrorMsg"></span>
+    </div>
+
+    <hr class="divider" id="installDivider" style="display:none">
+
+    <!-- Output -->
+    <div class="output-section" id="installOutput">
+      <div class="output-label">
+        <div class="output-label-left">
+          <span id="installOutputIcon">📦</span>
+          <span id="installOutputTitle">دستور نصب</span>
+          <span class="tag tag-orange" id="installOutputTag">BASH</span>
+        </div>
+        <div class="output-actions">
+          <button class="icon-btn" id="copyInstallBtn" onclick="copyInstall()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            کپی دستور
+          </button>
+          <span style="font-size:10px;color:var(--red);font-family:var(--mono);margin-right:8px;">⚠ فقط از این دکمه کپی کن</span>
+        </div>
+      </div>
+      <div class="output-box output-box-install" id="installOutputBox"></div>
+
+      <!-- Notes -->
+      <div class="hint" id="installNote" style="margin-top:14px;display:none">
+        <span style="font-size:14px;flex-shrink:0;margin-top:1px">📌</span>
+        <span id="installNoteText"></span>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar" id="installStats">
+      <div class="stat">
+        <div class="stat-dot inactive" id="installDot"></div>
+        <span id="installStatusText">منتظر ورودی</span>
+      </div>
+      <div class="stat" id="installTypeWrap" style="display:none">
+        <div class="stat-dot orange"></div>
+        <span id="installTypeText"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       QUICK COMMANDS CARD (compact)
+  ══════════════════════════════════ -->
+  <div class="quick-card">
+    <div class="quick-header">
+      <div class="quick-title">
+        <span style="font-size:15px">⚡</span>
+        دستورات سریع سرور
+      </div>
+      <div class="quick-subtitle">دستورات مدیریتی روزانه v2ray</div>
+    </div>
+
+    <div class="quick-tabs">
+      <button class="qtab active" data-qt="on" onclick="switchQuick('on')">
+        <span class="qdot qdot-green"></span>
+        روشن کردن VPN
+      </button>
+      <button class="qtab" data-qt="off" onclick="switchQuick('off')">
+        <span class="qdot qdot-red"></span>
+        خاموش کردن
+      </button>
+      <button class="qtab" data-qt="check" onclick="switchQuick('check')">
+        <span class="qdot qdot-blue"></span>
+        چک کانفیگ
+      </button>
+      <button class="qtab" data-qt="swap" onclick="switchQuick('swap')">
+        <span class="qdot qdot-yellow"></span>
+        تعویض کانفیگ
+      </button>
+    </div>
+
+    <div class="quick-pane active" id="qpane-on">
+      <div class="quick-desc">v2ray رو روشن می‌کنه و متغیرهای proxy رو در shell فعلی set می‌کنه.</div>
+      <div class="quick-cmd" id="qcmd-on">sudo systemctl enable v2ray
+sudo systemctl start v2ray
+export https_proxy=socks5://127.0.0.1:1080
+export http_proxy=socks5://127.0.0.1:1080
+export ALL_PROXY=socks5://127.0.0.1:1080</div>
+      <button class="quick-copy-btn" onclick="copyQuick('on')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        کپی
+      </button>
+    </div>
+
+    <div class="quick-pane" id="qpane-off">
+      <div class="quick-desc">v2ray رو متوقف و disable می‌کنه و متغیرهای proxy رو از shell پاک می‌کنه.</div>
+      <div class="quick-cmd" id="qcmd-off">sudo systemctl stop v2ray
+sudo systemctl disable v2ray
+unset https_proxy
+unset http_proxy
+unset ALL_PROXY</div>
+      <button class="quick-copy-btn" onclick="copyQuick('off')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        کپی
+      </button>
+    </div>
+
+    <div class="quick-pane" id="qpane-check">
+      <div class="quick-desc">چک می‌کنه v2ray فعاله، پورت 1080 باز هست، و اتصال واقعی برقراره.</div>
+      <div class="quick-cmd" id="qcmd-check">echo "── v2ray service ──" && systemctl is-active v2ray && echo "── port 1080 ──" && ss -tln | grep :1080 && echo "── connection test ──" && curl --socks5-hostname 127.0.0.1:1080 --max-time 10 -s -o /dev/null -w "HTTP: %{http_code} | IP: " https://api.ipify.org && curl --socks5-hostname 127.0.0.1:1080 --max-time 10 -s https://api.ipify.org && echo "" && echo "✓ همه چیز سالم است"</div>
+      <button class="quick-copy-btn" onclick="copyQuick('check')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        کپی
+      </button>
+    </div>
+
+    <div class="quick-pane" id="qpane-swap">
+      <div class="quick-desc">برای تعویض کانفیگ:۱) کانفیگ جدید را در تب اول ابزار وارد کنید ۲) دستور کامل رو بگیرید و روی سرور بزنید. این دستور کانفیگ فعلی رو جایگزین و v2ray رو restart می‌کنه:</div>
+      <div class="quick-cmd" id="qcmd-swap">systemctl stop v2ray
+# کانفیگ جدید را در /etc/v2ray/config.json قرار دهید
+# (یا از تب اول ابزار، دستور کامل را تولید و اجرا کنید)
+systemctl start v2ray
+sleep 2
+systemctl status v2ray --no-pager | head -5
+curl --socks5-hostname 127.0.0.1:1080 --max-time 10 https://api.ipify.org && echo " ← IP جدید"</div>
+      <button class="quick-copy-btn" onclick="copyQuick('swap')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        کپی
+      </button>
+    </div>
+
+    <span class="quick-copied-toast" id="quickCopiedToast">✓ کپی شد</span>
+  </div>
+
+  <!-- ══════════════════════════════════
+       VPN MANAGEMENT (collapsible)
+  ══════════════════════════════════ -->
+  <div class="vpn-mgmt-section">
+    <div class="vpn-mgmt-header" onclick="toggleVpnMgmt()">
+      <div class="vpn-mgmt-header-left">
+        <div class="vpn-mgmt-icon">🛠️</div>
+        <div>
+          <div class="vpn-mgmt-title">مدیریت VPN روی سرور</div>
+          <div class="vpn-mgmt-subtitle">روشن / خاموش / تست / تعویض کانفیگ</div>
+        </div>
+      </div>
+      <div class="vpn-mgmt-toggle" id="vpnMgmtToggle">▼</div>
+    </div>
+    <div class="vpn-mgmt-body" id="vpnMgmtBody">
+      <div class="vpn-action-grid">
+
+        <!-- روشن کردن -->
+        <div class="vpn-action-card start">
+          <div class="vpn-action-head">
+            <span class="vpn-action-emoji">▶️</span>
+            <span class="vpn-action-title">روشن کردن VPN</span>
+          </div>
+          <div class="vpn-action-desc">
+            v2ray رو شروع و فعال می‌کنه (auto-start بعد reboot) + متغیرهای proxy رو set می‌کنه.
+          </div>
+          <div class="vpn-action-cmd" id="vpnCmdStart">sudo systemctl enable v2ray
+sudo systemctl start v2ray
+export https_proxy=socks5://127.0.0.1:1080
+export http_proxy=socks5://127.0.0.1:1080
+export ALL_PROXY=socks5://127.0.0.1:1080</div>
+          <button class="vpn-copy-btn" id="vpnBtnStart" onclick="copyVpnCmd('Start')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            کپی
+          </button>
+        </div>
+
+        <!-- خاموش کردن -->
+        <div class="vpn-action-card stop">
+          <div class="vpn-action-head">
+            <span class="vpn-action-emoji">⏹️</span>
+            <span class="vpn-action-title">خاموش کردن VPN</span>
+          </div>
+          <div class="vpn-action-desc">
+            v2ray رو متوقف و غیرفعال می‌کنه + متغیرهای proxy رو پاک می‌کنه.
+          </div>
+          <div class="vpn-action-cmd" id="vpnCmdStop">sudo systemctl stop v2ray
+sudo systemctl disable v2ray
+unset https_proxy
+unset http_proxy
+unset ALL_PROXY</div>
+          <button class="vpn-copy-btn" id="vpnBtnStop" onclick="copyVpnCmd('Stop')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            کپی
+          </button>
+        </div>
+
+        <!-- تست کانفیگ -->
+        <div class="vpn-action-card test">
+          <div class="vpn-action-head">
+            <span class="vpn-action-emoji">🧪</span>
+            <span class="vpn-action-title">تست کانفیگ روی سرور</span>
+          </div>
+          <div class="vpn-action-desc">
+            چک می‌کنه v2ray فعاله، پورت 1080 بازه، و IP خروجی از VPN رد می‌شود (نه IP خود سرور).
+          </div>
+          <div class="vpn-action-cmd" id="vpnCmdTest">echo "▶ وضعیت v2ray:" && systemctl is-active v2ray && \
+echo "" && echo "▶ پورت 1080 (SOCKS):" && ss -tln | grep -E ':1080 |LISTEN' | head -3 && \
+echo "" && echo "▶ IP بدون VPN:" && curl -s --max-time 8 https://api.ipify.org && echo "" && \
+echo "▶ IP با VPN:" && curl -s --socks5-hostname 127.0.0.1:1080 --max-time 15 https://api.ipify.org && echo "" && \
+echo "" && echo "▶ تست Google با VPN:" && curl -sI --socks5-hostname 127.0.0.1:1080 --max-time 15 https://google.com | head -1 && \
+echo "" && echo "▶ ping latency از طریق VPN:" && curl -so /dev/null -w "زمان: %{time_total}s\n" --socks5-hostname 127.0.0.1:1080 --max-time 15 https://www.cloudflare.com</div>
+          <button class="vpn-copy-btn" id="vpnBtnTest" onclick="copyVpnCmd('Test')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            کپی
+          </button>
+        </div>
+
+        <!-- تعویض کانفیگ -->
+        <div class="vpn-action-card swap">
+          <div class="vpn-action-head">
+            <span class="vpn-action-emoji">🔄</span>
+            <span class="vpn-action-title">تعویض کانفیگ</span>
+          </div>
+          <div class="vpn-action-desc">
+            اول از تب «تبدیل کانفیگ» JSON جدید رو بساز و کپی کن. بعد این رو بزن، JSON رو paste کن، Ctrl+D بزن.
+          </div>
+          <div class="vpn-action-cmd" id="vpnCmdSwap">cp /etc/v2ray/config.json /etc/v2ray/config.json.bak.$(date +%s) 2>/dev/null
+echo "📋 الان JSON جدید رو paste کن، بعد Ctrl+D بزن:"
+cat > /etc/v2ray/config.json
+systemctl restart v2ray && sleep 2 && \
+systemctl is-active --quiet v2ray && \
+echo "✅ کانفیگ جدید فعال شد" && \
+curl -s --socks5-hostname 127.0.0.1:1080 --max-time 12 https://api.ipify.org && echo "" || \
+{ echo "✗ راه‌اندازی شکست خورد — بازگشت به نسخه قبلی"; cp $(ls -t /etc/v2ray/config.json.bak.* | head -1) /etc/v2ray/config.json; systemctl restart v2ray; }</div>
+          <button class="vpn-copy-btn" id="vpnBtnSwap" onclick="copyVpnCmd('Swap')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            کپی
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Sponsor -->
+  <div class="sponsor-section">
+    <div class="sponsor-label">سازنده</div>
+    <div class="sponsor-creator">
+      <div class="creator-avatar">👨‍💻</div>
+      <div class="creator-info">
+        <div class="creator-name">NeoQ</div>
+        <div class="creator-role">V2Ray Tools Developer</div>
+      </div>
+    </div>
+    <div class="sponsor-btns">
+      <a class="sponsor-btn sponsor-btn-tg" href="https://t.me/Just_Neo_Q" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.26 2.01L1.14 10.3c-1.4.56-1.39 1.34-.26 1.69l5.4 1.69 12.48-7.88c.59-.36 1.13-.17.69.23L8.35 17.1H8.34l-.4 5.57c.58 0 .84-.27 1.16-.57l2.78-2.7 5.79 4.27c1.07.59 1.83.28 2.1-.99l3.8-17.9c.39-1.56-.6-2.27-1.31-1.77z"/></svg>
+        NeoQ — تلگرام
+      </a>
+      <a class="sponsor-btn sponsor-btn-yt" href="https://www.youtube.com/@iranEclips" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1C4.5 20.4 12 20.4 12 20.4s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.8 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>
+        IranEclips — یوتیوب
+      </a>
+      <a class="sponsor-btn sponsor-btn-tg" href="https://t.me/IranEclip" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.26 2.01L1.14 10.3c-1.4.56-1.39 1.34-.26 1.69l5.4 1.69 12.48-7.88c.59-.36 1.13-.17.69.23L8.35 17.1H8.34l-.4 5.57c.58 0 .84-.27 1.16-.57l2.78-2.7 5.79 4.27c1.07.59 1.83.28 2.1-.99l3.8-17.9c.39-1.56-.6-2.27-1.31-1.77z"/></svg>
+        IranEclip — تلگرام
+      </a>
+      <a class="sponsor-btn sponsor-btn-gh" href="https://github.com/pouryaQE" target="_blank" rel="noopener">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.7 18 5 18 5c.7 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   GLOBALS
+══════════════════════════════════════════════ */
+let parsedConfigJSON = null;
+let currentInstallCmd = '';
+let selectedInstallType = 'auto';
+
+/* ══════════════════════════════════════════════
+   ONE-TIME SETUP
+══════════════════════════════════════════════ */
+function toggleOneTime() {
+  const body = document.getElementById('onetimeBody');
+  const toggle = document.getElementById('onetimeToggle');
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function copyOneTime() {
+  const cmd = document.getElementById('onetimeCmd').textContent;
+  navigator.clipboard.writeText(cmd).then(() => {
+    const el = document.getElementById('onetimeCopied');
+    el.style.display = 'inline';
+    setTimeout(() => { el.style.display = 'none'; }, 2500);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   VPN MANAGEMENT
+══════════════════════════════════════════════ */
+function toggleVpnMgmt() {
+  document.getElementById('vpnMgmtBody').classList.toggle('open');
+  document.getElementById('vpnMgmtToggle').classList.toggle('open');
+}
+
+function copyVpnCmd(which) {
+  const cmd = document.getElementById('vpnCmd' + which).textContent;
+  const btn = document.getElementById('vpnBtn' + which);
+  const orig = btn.innerHTML;
+  navigator.clipboard.writeText(cmd).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> کپی شد';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = orig;
+    }, 2200);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   QUICK COMMANDS CARD
+══════════════════════════════════════════════ */
+function switchQuick(which) {
+  document.querySelectorAll('.qtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.quick-pane').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.qtab[data-qt="${which}"]`).classList.add('active');
+  document.getElementById('qpane-' + which).classList.add('active');
+}
+
+function copyQuick(which) {
+  const cmd = document.getElementById('qcmd-' + which).textContent;
+  navigator.clipboard.writeText(cmd).then(() => {
+    const toast = document.getElementById('quickCopiedToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1800);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   TAB SWITCHING
+══════════════════════════════════════════════ */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+
+  if (tab === 'config') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('cardConfig').classList.add('active');
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('cardInstall').classList.add('active');
+  }
+}
+
+/* ══════════════════════════════════════════════
+   FULL INSTALL COMMAND TEMPLATE
+══════════════════════════════════════════════ */
+function buildFullInstallCmd(jsonPretty) {
+  return `echo "nameserver 217.218.155.155" | tee /etc/resolv.conf && echo "nameserver 217.218.127.127" | tee -a /etc/resolv.conf && pkill -9 apt apt-get dpkg unattended-upgrade 2>/dev/null; rm -f /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend /var/cache/apt/archives/lock && dpkg --configure -a && rm -f /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources && tee /etc/apt/sources.list << 'EOF'
+deb http://mirror.iranserver.com/ubuntu noble main restricted universe multiverse
+deb http://mirror.iranserver.com/ubuntu noble-updates main restricted universe multiverse
+deb http://mirror.iranserver.com/ubuntu noble-backports main restricted universe multiverse
+EOF
+rm -f /etc/apt/apt.conf.d/proxy.conf && unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY && apt update -y && apt install -y v2ray proxychains4 && mkdir -p /etc/v2ray && cat > /etc/v2ray/config.json << 'ENDOFFILE'
+${jsonPretty}
+ENDOFFILE
+systemctl daemon-reload && systemctl restart v2ray && systemctl enable v2ray && sleep 3 && sed -i '/socks4.*9050/d' /etc/proxychains4.conf && sed -i '/socks5.*1080/d' /etc/proxychains4.conf && echo 'socks5 127.0.0.1 1080' >> /etc/proxychains4.conf && curl --socks5-hostname 127.0.0.1:1080 https://google.com -I --max-time 15`;
+}
+
+/* ══════════════════════════════════════════════
+   CONFIG CONVERTER
+══════════════════════════════════════════════ */
+function convertConfig() {
+  const raw = document.getElementById('inputArea').value;
+  hideConfigError();
+  hideConfigOutput();
+
+  if (!raw.trim()) {
+    showConfigError('لطفاً کانفیگ را وارد کنید.');
+    return;
+  }
+
+  const cleaned = raw.replace(/\[([^\]]+)\]\([^)]+\)/g, (m, t) => t.trim());
+  const normalized = cleaned.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  let result = tryEOF(normalized) || tryJSON(normalized) || tryVlessLink(normalized)
+             || tryVmessLink(normalized) || tryTrojanLink(normalized)
+             || trySsLink(normalized) || tryBracketExtract(normalized);
+
+  if (!result) {
+    showConfigError('نتوانستم JSON را استخراج کنم.\nهر فرمتی (vless://، JSON، EOF heredoc) قبول می‌شود.');
+    return;
+  }
+
+  try {
+    parsedConfigJSON = typeof result === 'string' ? JSON.parse(result) : result;
+    parsedConfigJSON = cleanMarkdownInJSON(parsedConfigJSON);
+    const pretty = JSON.stringify(parsedConfigJSON, null, 2);
+    const fullCmd = buildFullInstallCmd(pretty);
+    showConfigOutput(fullCmd, pretty, parsedConfigJSON);
+  } catch(e) {
+    showConfigError('JSON نامعتبر است: ' + e.message);
+  }
+}
+
+function showConfigOutput(fullCmd, pretty, obj) {
+  document.getElementById('configOutputBox').innerHTML = highlightFullCmd(fullCmd);
+  document.getElementById('configOutput').classList.add('visible');
+  document.getElementById('configDivider').style.display = 'block';
+
+  document.getElementById('configDot').classList.remove('inactive');
+  document.getElementById('configStatusText').textContent = '✓  دستور کامل آماده';
+
+  const proto = detectProtocolShort(obj);
+  if (proto) {
+    document.getElementById('configProtoWrap').style.display = 'flex';
+    document.getElementById('configProtoText').textContent = proto;
+  }
+
+  const rows = extractInfo(obj);
+  if (rows.length) {
+    document.getElementById('configInfoRows').innerHTML = rows.map(r =>
+      `<div class="info-row">
+        <span class="info-key">${r.key}</span>
+        <span class="info-val${r.hl ? ' highlight' : ''}">${escHtml(String(r.val))}</span>
+      </div>`
+    ).join('');
+    document.getElementById('configInfoBar').classList.add('visible');
+  }
+}
+
+function hideConfigOutput() {
+  document.getElementById('configOutput').classList.remove('visible');
+  document.getElementById('configDivider').style.display = 'none';
+  document.getElementById('configDot').classList.add('inactive');
+  document.getElementById('configStatusText').textContent = 'منتظر ورودی';
+  document.getElementById('configProtoWrap').style.display = 'none';
+  document.getElementById('configInfoBar').classList.remove('visible');
+  parsedConfigJSON = null;
+}
+
+function copyFull() {
+  if (!parsedConfigJSON) return;
+  const pretty = JSON.stringify(parsedConfigJSON, null, 2);
+  const cmd = buildFullInstallCmd(pretty);
+  navigator.clipboard.writeText(cmd).then(() => flashBtn('copyFullBtn', 'کپی شد ✓'));
+}
+
+function copyJsonOnly() {
+  if (!parsedConfigJSON) return;
+  const pretty = JSON.stringify(parsedConfigJSON, null, 2);
+  navigator.clipboard.writeText(pretty).then(() => flashBtn('copyJsonOnly', 'کپی شد ✓'));
+}
+
+function pasteConfig() {
+  navigator.clipboard.readText().then(t => {
+    document.getElementById('inputArea').value = t;
+  }).catch(() => showConfigError('دسترسی به کلیپ‌بورد ممکن نیست. لطفاً دستی paste کنید.'));
+}
+
+function clearConfig() {
+  document.getElementById('inputArea').value = '';
+  hideConfigOutput();
+  hideConfigError();
+}
+
+function showConfigError(msg) {
+  const box = document.getElementById('configError');
+  document.getElementById('configErrorMsg').textContent = msg;
+  box.classList.add('visible');
+}
+function hideConfigError() {
+  document.getElementById('configError').classList.remove('visible');
+}
+
+/* ══════════════════════════════════════════════
+   INSTALL HELPER
+══════════════════════════════════════════════ */
+function selectType(type) {
+  selectedInstallType = type;
+  document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('chip-' + type).classList.add('selected');
+  updateInstallHint(type);
+}
+
+function updateInstallHint(type) {
+  const hints = {
+    auto: 'هر چی بدی — لینک GitHub، اسم پکیج، اسکریپت bash — خروجی با vpn-run شروع می‌شود تا اتوماتیک از VPN رد بشه.',
+    github: 'لینک GitHub ریپو یا فایل raw وارد کنید. خروجی با vpn-run شروع می‌شود.',
+    apt: 'اسم پکیج apt را وارد کنید (مثل: nginx, curl, htop).',
+    pip: 'اسم پکیج pip را وارد کنید (مثل: requests, flask).',
+    url: 'لینک مستقیم فایل (tar.gz, sh, bin و ...) وارد کنید.'
+  };
+  document.getElementById('installHintText').textContent = hints[type] || hints.auto;
+}
+
+function autoDetectType() {
+  if (selectedInstallType !== 'auto') return;
+  // visual feedback only - detection on generate
+}
+
+const PIP_PACKAGES = new Set([
+  'requests','flask','django','fastapi','uvicorn','gunicorn','httpx','aiohttp',
+  'numpy','pandas','scipy','matplotlib','seaborn','plotly',
+  'scikit-learn','sklearn','tensorflow','torch','torchvision','keras',
+  'pillow','opencv-python','cv2','beautifulsoup4','bs4','scrapy','selenium','playwright',
+  'sqlalchemy','alembic','pymongo','redis','pymysql','psycopg2',
+  'celery','pydantic','typer','click','rich','colorama',
+  'pytest','black','flake8','mypy','isort',
+  'paramiko','boto3','cryptography','jwt','pyjwt','passlib',
+  'python-dotenv','dotenv','pyyaml','tqdm','loguru'
+]);
+
+function detectInstallType(val) {
+  if (!val) return null;
+  if (val.includes('github.com') || val.includes('githubusercontent.com') || val.includes('raw.github')) {
+    return 'github';
+  }
+  if (/^https?:\/\//.test(val)) return 'url';
+  if (selectedInstallType === 'pip') return 'pip';
+  if (/[=<>!]=|(?<![=<>!])[<>]/.test(val)) return 'pip';
+  const names = val.trim().split(/[\s,]+/);
+  const normalize = n => n.toLowerCase().replace(/[-_]/g, '');
+  if (names.length > 0 && names.every(n => PIP_PACKAGES.has(n.toLowerCase()) || PIP_PACKAGES.has(normalize(n)))) {
+    return 'pip';
+  }
+  return 'apt';
+}
+
+function extractUrlFromBashCmd(text) {
+  text = text.trim().replace(/^sudo\s+/i, '');
+
+  // Pattern A:  bash -c "$(curl ... URL)" [@ args] [args]
+  // مثلاً: bash -c "$(curl -sL https://.../script.sh)" @ install --database mysql
+  let m = text.match(/bash\s+-c\s+["']\$\(\s*curl\s+[^)]*?(https?:\/\/[^\s)'"]+)\s*\)\s*["']\s*(.*)$/i);
+  if (m) {
+    let rest = (m[2] || '').trim();
+    // bash -c idiom: first arg becomes $0, often shown as "@" or "_" or "--"
+    if (/^@(\s|$)/.test(rest)) rest = rest.replace(/^@\s*/, '').trim();
+    else if (/^_(\s|$)/.test(rest)) rest = rest.replace(/^_\s*/, '').trim();
+    else if (/^--(\s|$)/.test(rest)) rest = rest.replace(/^--\s*/, '').trim();
+    return { url: m[1], args: rest, isBashScript: true };
+  }
+
+  // Pattern B:  bash <(curl ... URL) [args]
+  m = text.match(/bash\s+<\(\s*curl\s+[^)]*?(https?:\/\/[^\s)'"]+)\s*\)\s*(.*)$/i);
+  if (m) {
+    return { url: m[1], args: (m[2] || '').trim(), isBashScript: true };
+  }
+
+  // Pattern C:  curl ... URL | bash [-s -- args]
+  m = text.match(/curl\s+[^|]*?(https?:\/\/\S+?)\s*\|\s*(?:sudo\s+)?bash(?:\s+-s)?(?:\s+--)?\s*(.*)$/i);
+  if (m) {
+    return { url: m[1], args: (m[2] || '').trim(), isBashScript: true };
+  }
+
+  // Pattern D:  wget -O- URL | bash [-s -- args]
+  m = text.match(/wget\s+[^|]*?(https?:\/\/\S+?)\s*\|\s*(?:sudo\s+)?bash(?:\s+-s)?(?:\s+--)?\s*(.*)$/i);
+  if (m) {
+    return { url: m[1], args: (m[2] || '').trim(), isBashScript: true };
+  }
+
+  return null;
+}
+
+function generateInstall() {
+  let raw = document.getElementById('installInput').value.trim();
+  hideInstallError();
+  hideInstallOutput();
+
+  if (!raw) {
+    showInstallError('لطفاً مقدار را وارد کنید.');
+    return;
+  }
+
+  // Auto-fix: bash <(curl ...) or curl ... | bash or bash -c "$(curl ...)" @ args
+  let extractedArgs = '';
+  const extracted = extractUrlFromBashCmd(raw);
+  if (extracted) {
+    raw = extracted.url;
+    extractedArgs = extracted.args || '';
+    document.getElementById('installInput').value = raw;
+    const hint = document.getElementById('installHintText');
+    hint.textContent = extractedArgs
+      ? `⚡ URL استخراج شد و آرگومان‌های "${extractedArgs}" حفظ شدند.`
+      : '⚡ دستور curl/bash شناسایی شد. URL استخراج و اصلاح شد.';
+  }
+
+  const type = selectedInstallType === 'auto' ? detectInstallType(raw) : selectedInstallType;
+
+  let cmd = '', title = '', icon = '', tag = '', note = '';
+
+  if (type === 'github') {
+    const result = buildGithubCmd(raw, extractedArgs);
+    cmd = result.cmd;
+    title = 'دستور نصب از GitHub';
+    icon = '⬇️';
+    tag = 'VPN-RUN · GITHUB';
+    note = result.note;
+
+  } else if (type === 'apt') {
+    const pkgs = raw.split(/[\s,]+/).filter(Boolean).join(' ');
+    cmd = `vpn-run apt install -y ${pkgs}`;
+    title = 'دستور نصب apt';
+    icon = '📦';
+    tag = 'VPN-RUN · APT';
+    note = 'apt اول از mirror ایران (محلی) و در صورت نیاز از VPN رد می‌شود.';
+
+  } else if (type === 'pip') {
+    const pkgs = raw.split(/[\s,]+/).filter(Boolean).join(' ');
+    cmd = `# اگر pip3 نصب نیست، اول نصب می‌شود
+vpn-run bash -c 'command -v pip3 >/dev/null || apt install -y python3-pip; pip3 install --break-system-packages ${pkgs}'`;
+    title = 'دستور نصب pip';
+    icon = '🐍';
+    tag = 'VPN-RUN · PIP';
+    note = 'اگر python3-pip نصب نباشد، خودکار نصب می‌شود. سپس پکیج‌ها از طریق VPN دانلود می‌شوند.';
+
+  } else if (type === 'url') {
+    cmd = buildUrlDownloadCmd(raw);
+    title = 'دستور دانلود';
+    icon = '🔗';
+    tag = 'VPN-RUN · CURL';
+    note = 'دانلود از طریق VPN با retry خودکار و resume برای فایل‌های بزرگ.';
+  }
+
+  if (!cmd) {
+    showInstallError('نتوانستم دستور تولید کنم. ورودی را بررسی کنید.');
+    return;
+  }
+
+  currentInstallCmd = cmd;
+  showInstallOutput(cmd, title, icon, tag, note, type);
+}
+
+/* ── GitHub command builder (uses vpn-run wrapper) ── */
+function buildGithubCmd(url, extraArgs = '') {
+  url = url.trim();
+  const argsSuffix = extraArgs ? ' ' + extraArgs : '';
+
+  // Helper: vpn-run handles all the proxy magic. Download → execute pattern avoids
+  // the "bash <(curl ...) hangs with proxied curl" problem.
+  const bashScriptCmd = (scriptUrl, args = '') => {
+    const filename = scriptUrl.split('/').pop().split('?')[0] || 'install.sh';
+    const tmpPath = `/tmp/${filename}`;
+    return `vpn-run bash -c 'curl -Ls "${scriptUrl}" -o ${tmpPath} && bash ${tmpPath}${args ? ' ' + args : ''}'`;
+  };
+
+  // ── Raw script URL (.sh / .bash / .py) ──
+  if (url.includes('raw.githubusercontent.com') || url.includes('raw.github.com') ||
+      (url.includes('github.com') && url.includes('/raw/'))) {
+    const isScript = /\.(sh|bash|py)(\?.*)?$/.test(url);
+    if (isScript) {
+      return { cmd: bashScriptCmd(url, extraArgs), note: extraArgs ? `آرگومان "${extraArgs}" به اسکریپت پاس داده می‌شود.` : '' };
+    } else {
+      const filename = url.split('/').pop().split('?')[0] || 'downloaded_file';
+      return {
+        cmd: `vpn-run curl -L "${url}" -o /tmp/${filename}`,
+        note: ''
+      };
+    }
+  }
+
+  // ── GitHub release direct file URL ──
+  if (url.includes('/releases/download/') || url.includes('/releases/latest/download/')) {
+    const filename = url.split('/').pop() || 'release_file';
+    let extractCmd = '';
+    if (filename.endsWith('.tar.gz') || filename.endsWith('.tgz')) {
+      extractCmd = ` && tar -xzf /tmp/${filename} -C /usr/local/`;
+    } else if (filename.endsWith('.zip')) {
+      extractCmd = ` && unzip -o /tmp/${filename} -d /tmp/extracted/`;
+    } else if (filename.endsWith('.deb')) {
+      extractCmd = ` && dpkg -i /tmp/${filename}`;
+    } else if (filename.endsWith('.sh') || filename.endsWith('.bash')) {
+      extractCmd = ` && bash /tmp/${filename}${argsSuffix}`;
+    }
+    return {
+      cmd: `vpn-run bash -c 'curl -L "${url}" -o /tmp/${filename}${extractCmd}'`,
+      note: ''
+    };
+  }
+
+  // ── GitHub repo URL → resolve to install script ──
+  const repoMatch = url.match(/github\.com\/([^\/]+)\/([^\/\s?#]+)/);
+  if (repoMatch) {
+    const user = repoMatch[1];
+    const repo = repoMatch[2].replace(/\.git$/, '');
+    const repoKey = repo.toLowerCase().replace(/_/g, '-');
+
+    // Well-known repos: exact install script + default args
+    const wellKnown = {
+      '3x-ui':           { script: 'https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh' },
+      'x-ui':            { script: 'https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh' },
+      'marzban':         { script: 'https://github.com/Gozargah/Marzban-scripts/raw/master/marzban.sh', args: 'install' },
+      'marzban-scripts': { script: 'https://github.com/Gozargah/Marzban-scripts/raw/master/marzban.sh', args: 'install' },
+      'marzneshin':      { script: 'https://github.com/marzneshin/Marzneshin/raw/master/script.sh', args: 'install' },
+      'marznode':        { script: 'https://raw.githubusercontent.com/marzneshin/marznode/master/script.sh', args: 'install' },
+      'marzban-node':    { script: 'https://github.com/Gozargah/Marzban-scripts/raw/master/marzban-node.sh', args: 'install' },
+      'hiddify-manager': { script: 'https://raw.githubusercontent.com/hiddify/Hiddify-Manager/main/install.sh' },
+      'hiddify':         { script: 'https://raw.githubusercontent.com/hiddify/Hiddify-Manager/main/install.sh' },
+      'reality-ezpz':    { script: 'https://raw.githubusercontent.com/aleskxyz/reality-ezpz/master/reality-ezpz.sh' },
+      's-ui':            { script: 'https://raw.githubusercontent.com/alireza0/s-ui/master/install.sh' },
+    };
+
+    if (wellKnown[repoKey]) {
+      const wk = wellKnown[repoKey];
+      const finalArgs = extraArgs || wk.args || '';
+      return {
+        cmd: bashScriptCmd(wk.script, finalArgs),
+        note: '✓ ریپو شناخته شده — اسکریپت نصب صحیح به‌طور خودکار انتخاب شد.'
+      };
+    }
+
+    // ── Smart auto-detect for unknown repos ──
+    // Try multiple common script paths in master & main, use the first that exists
+    const candidates = [
+      `https://raw.githubusercontent.com/${user}/${repo}/master/install.sh`,
+      `https://raw.githubusercontent.com/${user}/${repo}/main/install.sh`,
+      `https://raw.githubusercontent.com/${user}/${repo}/master/script.sh`,
+      `https://raw.githubusercontent.com/${user}/${repo}/main/script.sh`,
+      `https://raw.githubusercontent.com/${user}/${repo}/master/setup.sh`,
+      `https://raw.githubusercontent.com/${user}/${repo}/main/setup.sh`,
+      `https://raw.githubusercontent.com/${user}/${repo}/master/${repo}.sh`,
+      `https://raw.githubusercontent.com/${user}/${repo}/main/${repo}.sh`,
+    ];
+
+    const urlListBash = candidates.map(u => `    "${u}"`).join(' \\\n');
+    const argsForExec = extraArgs ? ` ${extraArgs}` : '';
+
+    const cmd = `vpn-run bash -c '
+# 🔍 جستجوی هوشمند اسکریپت نصب در ریپو ${user}/${repo}
+SCRIPT_URL=""
+for u in \\
+${urlListBash} ; do
+  CODE=$(curl -sL -o /tmp/_gh_test -w "%{http_code}" "$u")
+  if [ "$CODE" = "200" ] && [ -s /tmp/_gh_test ]; then
+    FIRST=$(head -1 /tmp/_gh_test)
+    case "$FIRST" in
+      \\#!*|\\#*|"echo "*|"set "*|"if "*|"export "*|"source "*) SCRIPT_URL="$u"; cp /tmp/_gh_test /tmp/install.sh; break ;;
+    esac
+  fi
+done
+rm -f /tmp/_gh_test
+if [ -z "$SCRIPT_URL" ]; then
+  echo "✗ اسکریپت نصب در مسیرهای متداول پیدا نشد."
+  echo "  README ریپو را چک کنید: https://github.com/${user}/${repo}"
+  exit 1
+fi
+echo "✓ اسکریپت پیدا شد: $SCRIPT_URL"
+bash /tmp/install.sh${argsForExec}'`;
+
+    return {
+      cmd,
+      note: `این دستور خودکار ۸ مسیر متداول را تست می‌کند: install.sh، script.sh، setup.sh، ${repo}.sh — در branch master و main. اگر هیچ‌کدام پیدا نشد، URL درست را از README ریپو پیدا کنید.`
+    };
+  }
+
+  return {
+    cmd: `vpn-run curl -Ls "${url}" -o /tmp/gh_download`,
+    note: ''
+  };
+}
+
+function buildUrlDownloadCmd(url) {
+  const filename = url.split('/').pop().split('?')[0] || 'downloaded_file';
+  const ext = filename.split('.').pop().toLowerCase();
+  let extra = '';
+  if (ext === 'sh' || ext === 'bash') {
+    extra = ` && bash /tmp/${filename}`;
+  } else if (filename.endsWith('.tar.gz') || filename.endsWith('.tgz')) {
+    extra = ` && tar -xzf /tmp/${filename} -C /tmp/`;
+  } else if (ext === 'deb') {
+    extra = ` && dpkg -i /tmp/${filename}`;
+  }
+  // -C - = resume,  --retry 5 = retry 5 times,  --retry-delay 3 = wait 3s between retries
+  // --max-time 1200 = max 20min for huge files
+  return `vpn-run bash -c 'curl -L -C - --retry 5 --retry-delay 3 --max-time 1200 "${url}" -o /tmp/${filename}${extra}'`;
+}
+
+function showInstallOutput(cmd, title, icon, tag, note, type) {
+  document.getElementById('installOutputBox').innerHTML = highlightBashCmd(cmd);
+  document.getElementById('installOutput').classList.add('visible');
+  document.getElementById('installDivider').style.display = 'block';
+  document.getElementById('installOutputIcon').textContent = icon;
+  document.getElementById('installOutputTitle').textContent = title;
+  document.getElementById('installOutputTag').textContent = tag;
+
+  document.getElementById('installDot').classList.remove('inactive');
+  document.getElementById('installStatusText').textContent = '✓  دستور آماده';
+
+  const typeLabels = { github: 'GitHub', apt: 'APT Package', pip: 'pip Package', url: 'URL Download' };
+  document.getElementById('installTypeWrap').style.display = 'flex';
+  document.getElementById('installTypeText').textContent = typeLabels[type] || type;
+
+  if (note) {
+    document.getElementById('installNote').style.display = 'flex';
+    document.getElementById('installNoteText').textContent = note;
+  }
+}
+
+function hideInstallOutput() {
+  document.getElementById('installOutput').classList.remove('visible');
+  document.getElementById('installDivider').style.display = 'none';
+  document.getElementById('installDot').classList.add('inactive');
+  document.getElementById('installStatusText').textContent = 'منتظر ورودی';
+  document.getElementById('installTypeWrap').style.display = 'none';
+  document.getElementById('installNote').style.display = 'none';
+  currentInstallCmd = '';
+}
+
+function copyInstall() {
+  if (!currentInstallCmd) return;
+  navigator.clipboard.writeText(currentInstallCmd).then(() => flashBtn('copyInstallBtn', 'کپی شد ✓'));
+}
+
+function pasteInstall() {
+  navigator.clipboard.readText().then(t => {
+    document.getElementById('installInput').value = t;
+    autoDetectType();
+  }).catch(() => showInstallError('دسترسی به کلیپ‌بورد ممکن نیست.'));
+}
+
+function clearInstall() {
+  document.getElementById('installInput').value = '';
+  hideInstallOutput();
+  hideInstallError();
+}
+
+function showInstallError(msg) {
+  const box = document.getElementById('installError');
+  document.getElementById('installErrorMsg').textContent = msg;
+  box.classList.add('visible');
+}
+function hideInstallError() {
+  document.getElementById('installError').classList.remove('visible');
+}
+
+/* ══════════════════════════════════════════════
+   SYNTAX HIGHLIGHTING
+══════════════════════════════════════════════ */
+function highlightFullCmd(text) {
+  const lines = text.split('\n');
+  return lines.map((line) => {
+    const escaped = escHtml(line);
+    if (escaped === 'EOF' || escaped === 'ENDOFFILE') {
+      return `<span class="heredoc-eof">${escaped}</span>`;
+    }
+    if (line.startsWith('echo ') || line.startsWith('rm -f') || line.startsWith('tee ') ||
+        line.startsWith('deb ') || line.startsWith('unset ') || line.startsWith('apt ') ||
+        line.startsWith('cat ') || line.startsWith('systemctl') || line.startsWith('sed ') ||
+        line.startsWith('curl ') || line.startsWith('sleep ') || line.startsWith('pkill ') ||
+        line.startsWith('dpkg ')) {
+      return `<span class="heredoc-cmd">${escaped}</span>`;
+    }
+    if (line.trim().startsWith('"') || line.trim().startsWith('{') || line.trim().startsWith('}') ||
+        line.trim().startsWith('[') || line.trim().startsWith(']')) {
+      return syntaxHighlight(escaped);
+    }
+    return escaped;
+  }).join('\n');
+}
+
+function highlightBashCmd(text) {
+  const lines = text.split('\n');
+  return lines.map(line => {
+    if (line.startsWith('#')) {
+      return `<span class="bash-comment">${escHtml(line)}</span>`;
+    }
+    const out = [];
+    let buf = '';
+    const flushBuf = () => { if (buf) { out.push(escHtml(buf)); buf = ''; } };
+    let i = 0;
+    const cmdMatch = line.match(/^(curl|wget|git|apt|pip3|bash|dpkg|tar|unzip|mkdir|cd|chmod|systemctl|sed|echo|cat|tee|printf|export|unset)([\s|$])/);
+    if (cmdMatch) {
+      out.push(`<span class="bash-cmd">${escHtml(cmdMatch[1])}</span>`);
+      i = cmdMatch[1].length;
+    }
+    while (i < line.length) {
+      const ch = line[i];
+      if (ch === '"') {
+        flushBuf();
+        let j = i + 1;
+        while (j < line.length && line[j] !== '"') j++;
+        out.push('"<span class="bash-str">' + escHtml(line.substring(i + 1, j)) + '</span>' + (j < line.length ? '"' : ''));
+        i = (j < line.length) ? j + 1 : j;
+        continue;
+      }
+      if (ch === '-' && (i === 0 || /\s/.test(line[i - 1]))) {
+        const flagMatch = line.substring(i).match(/^(--[a-z0-9-]+|-[a-zA-Z]+)(?=\s|=|$)/);
+        if (flagMatch) {
+          flushBuf();
+          out.push(`<span class="bash-flag">${escHtml(flagMatch[1])}</span>`);
+          i += flagMatch[1].length;
+          continue;
+        }
+      }
+      buf += ch;
+      i++;
+    }
+    flushBuf();
+    return out.join('');
+  }).join('\n');
+}
+
+function syntaxHighlight(json) {
+  if (!json.includes('&lt;') && !json.includes('&quot;')) {
+    json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    m => {
+      let cls = 'json-number';
+      if (/^"/.test(m)) cls = /:$/.test(m) ? 'json-key' : 'json-string';
+      else if (/true|false/.test(m)) cls = 'json-bool';
+      else if (/null/.test(m)) cls = 'json-null';
+      return `<span class="${cls}">${m}</span>`;
+    }
+  );
+}
+
+/* ══════════════════════════════════════════════
+   CONFIG EXTRACTION STRATEGIES
+══════════════════════════════════════════════ */
+function tryEOF(s) {
+  const re = /<<\s*['"]?(\w+)['"]?\s*\n([\s\S]*?)\n\1\s*$/m;
+  const m = s.match(re);
+  if (m) return m[2].trim();
+  const re2 = /<<\s*['"]?(\w+)['"]?\s*\n([\s\S]*?)\n\1/;
+  const m2 = s.match(re2);
+  if (m2) return m2[2].trim();
+  return null;
+}
+
+function tryJSON(s) {
+  const trimmed = s.trim();
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return extractBalanced(trimmed);
+  }
+  return null;
+}
+
+function tryVlessLink(s) {
+  const m = s.match(/vless:\/\/([^\s@]+)@([^:\s]+):(\d+)[?]([^\s#]*)(?:#.*)?/);
+  if (!m) return null;
+  const uuid = m[1], host = m[2], port = parseInt(m[3]);
+  const params = parseQuery(m[4]);
+  const security = params.security || 'none';
+  const network  = params.type || 'tcp';
+  const path     = params.path ? decodeURIComponent(params.path) : '/';
+  const sni      = params.sni || params.host || host;
+  const fp       = params.fp || '';
+  const alpn     = params.alpn ? decodeURIComponent(params.alpn).split(',') : [];
+  const headerHost = params.host || host;
+  const streamSettings = buildStreamSettings(network, security, path, sni, headerHost, fp, alpn, '', '');
+  return {
+    log: { loglevel: 'warning' },
+    inbounds: [{ port: 1080, protocol: 'socks', listen: '127.0.0.1', settings: { auth: 'noauth' } }],
+    outbounds: [{
+      protocol: 'vless',
+      settings: { vnext: [{ address: host, port, users: [{ id: uuid, encryption: 'none' }] }] },
+      streamSettings
+    }, { protocol: 'freedom', tag: 'direct' }]
+  };
+}
+
+function tryVmessLink(s) {
+  const m = s.match(/vmess:\/\/([A-Za-z0-9+/=]+)/);
+  if (!m) return null;
+  let v;
+  try { v = JSON.parse(atob(m[1])); } catch(e) { return null; }
+  const host = v.add || '', port = parseInt(v.port) || 443, uuid = v.id || '';
+  const alterId = parseInt(v.aid) || 0, net = v.net || 'tcp', tls = v.tls || '';
+  const path = v.path || '/', sni = v.sni || v.host || host, host2 = v.host || host;
+  const fp = v.fp || '';
+  const alpn = v.alpn ? (typeof v.alpn === 'string' ? v.alpn.split(',') : v.alpn) : [];
+  const streamSettings = buildStreamSettings(net, tls, path, sni, host2, fp, alpn, '', '');
+  return {
+    log: { loglevel: 'warning' },
+    inbounds: [{ port: 1080, protocol: 'socks', listen: '127.0.0.1', settings: { auth: 'noauth' } }],
+    outbounds: [{
+      protocol: 'vmess',
+      settings: { vnext: [{ address: host, port, users: [{ id: uuid, alterId, security: 'auto' }] }] },
+      streamSettings
+    }, { protocol: 'freedom', tag: 'direct' }]
+  };
+}
+
+function tryTrojanLink(s) {
+  const m = s.match(/trojan:\/\/([^@\s]+)@([^:\s]+):(\d+)[?]?([^\s#]*)(?:#.*)?/);
+  if (!m) return null;
+  const password = m[1], host = m[2], port = parseInt(m[3]);
+  const params = parseQuery(m[4] || '');
+  const security = params.security || 'tls', network = params.type || 'tcp';
+  const path = params.path ? decodeURIComponent(params.path) : '/';
+  const sni = params.sni || host, fp = params.fp || '';
+  const alpn = params.alpn ? decodeURIComponent(params.alpn).split(',') : [];
+  const streamSettings = buildStreamSettings(network, security, path, sni, host, fp, alpn, '', '');
+  return {
+    log: { loglevel: 'warning' },
+    inbounds: [{ port: 1080, protocol: 'socks', listen: '127.0.0.1', settings: { auth: 'noauth' } }],
+    outbounds: [{
+      protocol: 'trojan',
+      settings: { servers: [{ address: host, port, password }] },
+      streamSettings
+    }, { protocol: 'freedom', tag: 'direct' }]
+  };
+}
+
+function trySsLink(s) {
+  const m = s.match(/ss:\/\/([A-Za-z0-9+/=]+)(?:@([^:\s]+):(\d+))?(?:#.*)?/);
+  if (!m) return null;
+  let decoded = '';
+  try { decoded = atob(m[1]); } catch(e) { return null; }
+  let method2, password, host, port;
+  if (m[2]) {
+    const cp = decoded.indexOf(':');
+    method2 = decoded.substring(0, cp);
+    password = decoded.substring(cp + 1);
+    host = m[2]; port = parseInt(m[3]);
+  } else {
+    const atI = decoded.lastIndexOf('@');
+    if (atI === -1) return null;
+    const methodPass = decoded.substring(0, atI);
+    const hostPort   = decoded.substring(atI + 1);
+    const cp = methodPass.indexOf(':');
+    method2  = methodPass.substring(0, cp);
+    password = methodPass.substring(cp + 1);
+    const hp = hostPort.lastIndexOf(':');
+    host = hostPort.substring(0, hp);
+    port = parseInt(hostPort.substring(hp + 1));
+  }
+  return {
+    log: { loglevel: 'warning' },
+    inbounds: [{ port: 1080, protocol: 'socks', listen: '127.0.0.1', settings: { auth: 'noauth' } }],
+    outbounds: [{
+      protocol: 'shadowsocks',
+      settings: { servers: [{ address: host, port, method: method2, password }] }
+    }, { protocol: 'freedom', tag: 'direct' }]
+  };
+}
+
+function tryBracketExtract(s) {
+  const start = s.indexOf('{');
+  if (start === -1) return null;
+  return extractBalanced(s.substring(start));
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function cleanMarkdown(s) {
+  if (!s) return s;
+  return s.replace(/\[([^\]]+)\]\([^)]+\)/g, (match, text) => text.trim()).trim();
+}
+
+function cleanMarkdownInJSON(obj) {
+  if (typeof obj === 'string') return cleanMarkdown(obj);
+  if (Array.isArray(obj)) return obj.map(cleanMarkdownInJSON);
+  if (obj && typeof obj === 'object') {
+    const out = {};
+    for (const k of Object.keys(obj)) out[k] = cleanMarkdownInJSON(obj[k]);
+    return out;
+  }
+  return obj;
+}
+
+function extractBalanced(s) {
+  let depth = 0, inStr = false, escape = false, start = -1;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escape) { escape = false; continue; }
+    if (c === '\\' && inStr) { escape = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === '{') { if (depth === 0) start = i; depth++; }
+    else if (c === '}') { depth--; if (depth === 0 && start !== -1) return s.substring(start, i + 1); }
+  }
+  return null;
+}
+
+function parseQuery(qs) {
+  const out = {};
+  if (!qs) return out;
+  qs.replace(/^\?/, '').split('&').forEach(pair => {
+    const [k, v] = pair.split('=');
+    if (k) out[decodeURIComponent(k)] = v ? decodeURIComponent(v) : '';
+  });
+  return out;
+}
+
+function buildStreamSettings(network, security, path, sni, host, fp, alpn, headerType, grpcSvcName) {
+  const ss = { network, security };
+  if (security === 'tls') {
+    ss.tlsSettings = { serverName: sni };
+    if (alpn && alpn.length) ss.tlsSettings.alpn = alpn;
+    if (fp) ss.tlsSettings.fingerprint = fp;
+  } else if (security === 'reality') {
+    ss.realitySettings = { serverName: sni };
+    if (fp) ss.realitySettings.fingerprint = fp;
+  }
+  if (network === 'ws') {
+    ss.wsSettings = { path };
+    if (host) ss.wsSettings.headers = { Host: host };
+  } else if (network === 'grpc') {
+    ss.grpcSettings = { serviceName: grpcSvcName || path.replace(/^\//, '') };
+  } else if (network === 'h2' || network === 'http') {
+    ss.httpSettings = { path, host: host ? [host] : [] };
+  } else if (network === 'tcp' && headerType === 'http') {
+    ss.tcpSettings = { header: { type: 'http', request: { path: [path], headers: { Host: [host] } } } };
+  } else if (network === 'kcp' || network === 'mkcp') {
+    ss.kcpSettings = { header: { type: headerType || 'none' } };
+  } else if (network === 'quic') {
+    ss.quicSettings = { header: { type: headerType || 'none' } };
+  }
+  return ss;
+}
+
+function extractInfo(obj) {
+  const rows = [];
+  try {
+    const outs = obj.outbounds || [];
+    const out  = outs.find(o => o.protocol && o.protocol !== 'freedom' && o.protocol !== 'blackhole') || outs[0];
+    if (!out) return rows;
+    const proto = out.protocol || '—';
+    const ss    = out.streamSettings || {};
+    const net   = ss.network || 'tcp';
+    const sec   = ss.security || 'none';
+    rows.push({ key: 'پروتکل', val: proto.toUpperCase(), hl: true });
+    rows.push({ key: 'شبکه (transport)', val: net.toUpperCase() });
+    rows.push({ key: 'امنیت', val: sec === 'none' ? 'بدون رمزنگاری' : sec.toUpperCase() });
+    const settings = out.settings || {};
+    let addr = '—', port = '—', uid = '—';
+    if (settings.vnext && settings.vnext[0]) {
+      addr = settings.vnext[0].address;
+      port = settings.vnext[0].port;
+      const user = (settings.vnext[0].users || [])[0] || {};
+      uid = user.id || user.uuid || '—';
+    } else if (settings.servers && settings.servers[0]) {
+      addr = settings.servers[0].address;
+      port = settings.servers[0].port;
+      uid  = settings.servers[0].password || '—';
+    }
+    rows.push({ key: 'سرور', val: addr });
+    rows.push({ key: 'پورت', val: String(port) });
+    if (uid !== '—') rows.push({ key: proto === 'trojan' ? 'پسورد' : 'UUID', val: uid });
+    if (ss.tlsSettings)     rows.push({ key: 'SNI', val: ss.tlsSettings.serverName || '—' });
+    if (ss.realitySettings) rows.push({ key: 'SNI (Reality)', val: ss.realitySettings.serverName || '—' });
+    if (ss.wsSettings)      rows.push({ key: 'WebSocket Path', val: ss.wsSettings.path || '/' });
+    if (ss.grpcSettings)    rows.push({ key: 'gRPC Service', val: ss.grpcSettings.serviceName || '—' });
+    const inb = (obj.inbounds || [])[0];
+    if (inb) rows.push({ key: 'Inbound (SOCKS5)', val: `${inb.listen || '127.0.0.1'}:${inb.port}` });
+  } catch(e) {}
+  return rows;
+}
+
+function detectProtocolShort(obj) {
+  try {
+    const outs = obj.outbounds || [];
+    const out  = outs.find(o => o.protocol !== 'freedom' && o.protocol !== 'blackhole') || outs[0];
+    if (!out) return null;
+    const ss = out.streamSettings || {};
+    return [
+      out.protocol?.toUpperCase(),
+      ss.network?.toUpperCase(),
+      ss.security && ss.security !== 'none' ? ss.security.toUpperCase() : null
+    ].filter(Boolean).join(' + ');
+  } catch(e){ return null; }
+}
+
+function flashBtn(id, label) {
+  const btn = document.getElementById(id);
+  const orig = btn.innerHTML;
+  btn.classList.add('copied');
+  btn.textContent = label;
+  setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Keyboard shortcuts
+document.getElementById('inputArea').addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') convertConfig();
+});
+document.getElementById('installInput').addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generateInstall();
+});
+</script>
+</body>
+</html>
