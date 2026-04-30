@@ -4,7 +4,7 @@
 
 ساخته شده توسط **NeoQ**
 
-🔗 [Live Tool](https://justneoq.github.io/v2ray-server-tool/)
+🔗 [Live Tool](https://neoqe.github.io/v2ray-config-converter)
 📱 [کانال تلگرام](https://t.me/Just_Neo_Q)
 
 ---
